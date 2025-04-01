@@ -54,7 +54,7 @@ const Orders = () => {
       customerName: 'John Doe',
       orderDate: '2024-01-04',
       status: 'Pending',
-      total: 150.00,
+      total: 150.00
     },
     {
       id: 2,
@@ -62,9 +62,9 @@ const Orders = () => {
       customerName: 'Jane Smith',
       orderDate: '2024-01-04',
       status: 'Completed',
-      total: 250.00,
-    },
-  ]);
+      total: 250.00
+    }
+  ];
 
   const columns: GridColDef[] = [
     { field: 'orderNumber', headerName: 'Order Number', width: 150 },
@@ -94,16 +94,6 @@ const Orders = () => {
       width: 120,
       renderCell: (params) => `$${params.value.toFixed(2)}`,
     }
-    { field: 'orderNumber', headerName: 'Order Number', width: 150 },
-    { field: 'customerName', headerName: 'Customer Name', width: 200 },
-    { field: 'orderDate', headerName: 'Order Date', width: 150 },
-    { field: 'status', headerName: 'Status', width: 120 },
-    {
-      field: 'total',
-      headerName: 'Total',
-      width: 120,
-      renderCell: (params) => `$${params.value.toFixed(2)}`,
-    },
   ];
 
   const handleAddOrder = () => {
