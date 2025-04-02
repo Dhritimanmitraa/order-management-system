@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Typography, Menu, MenuItem, Box } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Typography, Menu, MenuItem, Box, useTheme } from '@mui/material';
 import { Menu as MenuIcon, AccountCircle } from '@mui/icons-material';
 
 interface NavbarProps {
@@ -7,6 +7,7 @@ interface NavbarProps {
 }
 
 const Navbar = ({ onMenuClick }: NavbarProps) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -18,8 +19,26 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
   };
 
   return (
-    <AppBar position="fixed">
-      <Toolbar>
+    <AppBar
+      position="fixed"
+      sx={{
+        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <Toolbar
+        sx={{
+          '& .MuiIconButton-root': {
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'scale(1.1)',
+              background: 'rgba(255, 255, 255, 0.1)',
+            },
+          },
+        }}
+      >
         <IconButton
           edge="start"
           color="inherit"
@@ -29,7 +48,18 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{
+            flexGrow: 1,
+            fontWeight: 600,
+            background: 'linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.8))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          }}
+        >
           Order Management System
         </Typography>
         <Box>
