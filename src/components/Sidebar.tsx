@@ -1,6 +1,17 @@
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { Dashboard as DashboardIcon, ShoppingCart, People, Payment } from '@mui/icons-material';
+import { 
+  Dashboard as DashboardIcon,
+  ShoppingCart,
+  People,
+  Payment,
+  Inventory,
+  Analytics as AnalyticsIcon,
+  LocalShipping,
+  Assessment,
+  Notifications,
+  Settings
+} from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -9,8 +20,14 @@ const Sidebar = () => {
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Orders', icon: <ShoppingCart />, path: '/orders' },
+    { text: 'Inventory', icon: <Inventory />, path: '/inventory' },
     { text: 'Customers', icon: <People />, path: '/customers' },
+    { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
+    { text: 'Suppliers', icon: <LocalShipping />, path: '/suppliers' },
+    { text: 'Reports', icon: <Assessment />, path: '/reports' },
+    { text: 'Notifications', icon: <Notifications />, path: '/notifications' },
     { text: 'Payments', icon: <Payment />, path: '/payments' },
+    { text: 'Settings', icon: <Settings />, path: '/settings' },
   ];
 
   return (
