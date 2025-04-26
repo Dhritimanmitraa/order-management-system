@@ -104,8 +104,9 @@ const inventorySlice = createSlice({
             })
             return state;
         });
-        builder.addCase(deleteProduct.fulfilled, (action) => {
-            return action.payload;
+        builder.addCase(deleteProduct.fulfilled, (state, action) => {
+            return state.filter((product) => product.id !== action.payload);
+
         });
     }
 });

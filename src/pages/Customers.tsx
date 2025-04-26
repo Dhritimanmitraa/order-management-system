@@ -3,11 +3,19 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { Customer } from '../features/customers/customersSlice';
+import { Customer, CustomersState } from '../features/customers/customersSlice';
 
 
 const Customers = () => {
-    const customers = useSelector((state: RootState) => state.customers) as Customer[];
+  const customersState = useSelector((state: RootState) => state.customers);
+  let customers: Customer[];
+
+  if (Array.isArray(customersState)) {
+    customers = customersState;
+  } else {
+    customers = customersState.customers;
+  }
+
 
 
   const columns: GridColDef[] = [

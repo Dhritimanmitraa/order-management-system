@@ -1,9 +1,9 @@
 import { Box, Typography, Grid, Card, CardContent, Button, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Alert } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';import { Product } from '../features/inventory/inventorySlice';
-
-const Inventory = () => {
+import { RootState } from '../app/store';
+import { Product } from '../features/inventory/inventorySlice';
+export default function Inventory() {
     const products = useSelector((state: RootState) => state.inventory);
 
   const lowStockProducts = products.filter(product => product.stockLevel <= product.reorderPoint);

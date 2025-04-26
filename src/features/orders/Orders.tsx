@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { getOrders } from './ordersSlice';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress } from '@mui/material';
+import ordersSlice from './ordersSlice';
 
 const Orders: React.FC = () => {
   const dispatch = useDispatch();
@@ -10,7 +10,7 @@ const Orders: React.FC = () => {
   const {loading, error} = orders
 
   useEffect(() => {
-    dispatch(getOrders());
+    dispatch(ordersSlice.getOrders());
   }, [dispatch]); 
 
   if (loading) {

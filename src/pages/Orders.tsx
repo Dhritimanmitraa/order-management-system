@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon, FormatListBulleted } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
-import { getOrders} from '../features/orders/ordersSlice';
+import ordersSlice from '../features/orders/ordersSlice';
 import OrderDetails from './OrderDetails';
 
 interface Order {
@@ -30,7 +30,7 @@ const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
 
   useEffect(() => {
-    dispatch(getOrders());
+    dispatch(ordersSlice.getOrders());
   }, [dispatch]);
 
   const getStatusColor = (status: string) => {
