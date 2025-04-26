@@ -16,8 +16,8 @@ import {
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store';
-import { Product, fetchProducts, createProduct, updateProductThunk, deleteProduct } from '../features/inventory/inventorySlice';
+import { RootState } from '../app/store';
+import inventorySlice, { Product, getProducts, addProduct, updateProduct, deleteProduct } from '../features/inventory/inventorySlice';
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -33,7 +33,7 @@ const Products = () => {
   });
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(getProducts());
   }, [dispatch]);
 
   useEffect(() => {
@@ -78,7 +78,7 @@ const Products = () => {
     const productData = {
       name: formData.name,
       description: formData.description,
-      sku: formData.sku,
+      sku: formData.sku.toString(),
       price: parseFloat(formData.price),
       stockLevel: parseInt(formData.stockLevel),
       category: 'Default',
@@ -87,17 +87,17 @@ const Products = () => {
     };
 
     if (selectedProduct) {
-      await dispatch(updateProductThunk({ id: selectedProduct.id.toString(), productData }));
+      await dispatch(updateProduct({ id: selectedProduct.id.toString(), productData }));
     } else {
-      await dispatch(createProduct(productData));
+      await dispatch(addProduct(productData));
     }
 
     handleClose();
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      await dispatch(deleteProduct(id.toString()));
+      await dispatch(deleteProduct(id.toString() as string));
     }
   };
 
@@ -111,7 +111,7 @@ const Products = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => handleClickOpen()}
+          onClick={handleClickOpen}
         >
           Add Product
         </Button>
@@ -159,7 +159,7 @@ const Products = () => {
                 <IconButton 
                   size="small" 
                   color="error"
-                  onClick={() => handleDelete(product.id)}
+                  onClick={()=>handleDelete((product as Product).id)}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -235,7 +235,3 @@ const Products = () => {
     </Box>
   );
 };
-
-export default Products;
-
-export default Products

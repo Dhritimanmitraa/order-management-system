@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { fetchOrders, Order } from './ordersSlice';
+import { getOrders } from './ordersSlice';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress } from '@mui/material';
 
 const Orders: React.FC = () => {
   const dispatch = useDispatch();
-  const { orders, loading, error } = useSelector((state: RootState) => state.orders);
+  const orders = useSelector((state: RootState) => state.orders);
+  const {loading, error} = orders
 
   useEffect(() => {
-    dispatch(fetchOrders());
-  }, [dispatch]);
+    dispatch(getOrders());
+  }, [dispatch]); 
 
   if (loading) {
     return (
@@ -45,7 +46,7 @@ const Orders: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {orders.map((order: Order) => (
+            {orders.orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell>{order.orderNumber}</TableCell>
                 <TableCell>{order.customerName}</TableCell>

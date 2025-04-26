@@ -1,14 +1,13 @@
 import { Box, Typography, Button } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import customersSlice from '../features/customers/customersSlice';
+import { Customer } from '../features/customers/customersSlice';
 
 
 const Customers = () => {
-  const dispatch = useDispatch();
-  const customers = useSelector((state: RootState) => state.customers);
+    const customers = useSelector((state: RootState) => state.customers) as Customer[];
 
 
   const columns: GridColDef[] = [
@@ -25,14 +24,7 @@ const Customers = () => {
   ];
 
   const handleAddCustomer = () => {
-    const newCustomer = {
-      name: 'New Customer',
-      email: 'new.customer@example.com',
-      phone: '(555) 000-0000',
-      totalOrders: 0,
-      totalSpent: 0,
-    };
-    //dispatch(addCustomer(newCustomer));
+
   };
 
   return (

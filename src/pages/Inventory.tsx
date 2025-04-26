@@ -1,10 +1,10 @@
 import { Box, Typography, Grid, Card, CardContent, Button, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Alert } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';import { Product } from '../features/inventory/inventorySlice';
 
 const Inventory = () => {
-  const products = useSelector((state: RootState) => state.inventory.products);
+    const products = useSelector((state: RootState) => state.inventory);
 
   const lowStockProducts = products.filter(product => product.stockLevel <= product.reorderPoint);
 
@@ -70,7 +70,7 @@ const Inventory = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.map((product) => (
+            {products.map((product: Product) => (
               <TableRow
                 key={product.id}
                 sx={{
@@ -83,8 +83,8 @@ const Inventory = () => {
                 <TableCell align="right">${product.price.toFixed(2)}</TableCell>
                 <TableCell align="right">{product.stockLevel}</TableCell>
                 <TableCell align="right">{product.reorderPoint}</TableCell>
-                <TableCell>{new Date(product.lastRestocked).toLocaleDateString()}</TableCell>
-                <TableCell align="right">
+                <TableCell>{product.lastRestocked? new Date(product.lastRestocked).toLocaleDateString() : ""}</TableCell>
+                  <TableCell align="right">
                   <IconButton size="small" color="primary">
                     <EditIcon />
                   </IconButton>
@@ -100,5 +100,3 @@ const Inventory = () => {
     </Box>
   );
 };
-
-export default Inventory;
