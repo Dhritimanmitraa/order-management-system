@@ -1,9 +1,11 @@
 import { useState } from 'react';
+
+
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Button, Card, CardContent, Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
-import { addOrder } from '../features/orders/ordersSlice';
-import { updateStock } from '../features/inventory/inventorySlice';
+import ordersSlice from '../features/orders/ordersSlice';
+import inventorySlice from '../features/inventory/inventorySlice';
 import type { Product } from '../features/inventory/inventorySlice';
 
 interface OrderItem {
@@ -72,7 +74,7 @@ const AddOrder = () => {
       lastUpdated: new Date().toISOString()
     };
 
-    dispatch(addOrder(newOrder));
+    dispatch(ordersSlice.actions.addOrder(newOrder));
 
     // Update inventory stock levels
     items.forEach(item => {
@@ -80,7 +82,7 @@ const AddOrder = () => {
         productId: item.productId,
         quantity: -item.quantity // Decrease stock
       }));
-    });
+      dispatch(inventorySlice.actions.updateStock({ productId: item.productId, quantity: -item.quantity }));});
 
     // Reset form
     setCustomerName('');

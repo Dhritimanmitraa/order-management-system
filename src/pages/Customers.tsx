@@ -3,20 +3,12 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { Customer, addCustomer, deleteCustomer } from '../features/customers/customersSlice';
+import customersSlice from '../features/customers/customersSlice';
 
-interface Customer {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  totalOrders: number;
-  totalSpent: number;
-}
 
 const Customers = () => {
   const dispatch = useDispatch();
-  const customers = useSelector((state: RootState) => state.customers.customers);
+  const customers = useSelector((state: RootState) => state.customers);
 
 
   const columns: GridColDef[] = [
@@ -40,7 +32,7 @@ const Customers = () => {
       totalOrders: 0,
       totalSpent: 0,
     };
-    dispatch(addCustomer(newCustomer));
+    //dispatch(addCustomer(newCustomer));
   };
 
   return (

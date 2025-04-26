@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
   name: {
@@ -21,7 +21,7 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
-  stockQuantity: {
+  quantity: {
     type: Number,
     required: true,
     min: 0,
@@ -45,25 +45,30 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  stockLevel: {
+    type: Number
+  },
+  lastRestocked: {
+    type: String
+  },
   createdAt: {
     type: Date,
     default: Date.now
   },
   updatedAt: {
-    type: Date,
-    default: Date.now
+    type: Date, default: Date.now
   }
 });
 
 // Update timestamp on save
-productSchema.pre('save', function(next) {
+productSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
 // Method to check if product is in stock
-productSchema.methods.isInStock = function() {
-  return this.stockQuantity > 0;
+productSchema.methods.isInStock = function () {
+  return this.quantity > 0;
 };
 
 // Method to update stock quantity
@@ -71,5 +76,3 @@ productSchema.methods.updateStock = function(quantity) {
   this.stockQuantity += quantity;
   return this.save();
 };
-
-module.exports = mongoose.model('Product', productSchema);

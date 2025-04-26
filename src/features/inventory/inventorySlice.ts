@@ -1,9 +1,9 @@
 
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { inventoryApi, Product as ApiProduct } from '../../api/inventory';
-
+import { WritableDraft } from 'immer/dist/internal';
 export interface Product extends ApiProduct {
-  id: number;
+  id: string;
   name: string;
   sku: string;
   description: string;
@@ -11,7 +11,7 @@ export interface Product extends ApiProduct {
   stockLevel: number;
   reorderPoint: number;
   category: string;
-  supplier: string;
+  lastRestocked: string;
   lastRestocked: string;
 }
 
@@ -21,8 +21,11 @@ interface InventoryState {
   error: string | null;
 }
 
-const initialState: InventoryState = {
-  products: [],
+const initialState: Product[] = [
+  { id: "0", name: "Initial Product", description: "Initial product description", sku: "000", price: 0, quantity: 0, category: "initial", supplier: "initial", reorderPoint: 0, stockLevel: 0,
+      lastRestocked: '',
+    },
+  ],
   loading: false,
   error: null
 };
@@ -64,6 +67,7 @@ export const updateProductStock = createAsyncThunk(
   'inventory/updateStock',
   async ({ id, quantity }: { id: string; quantity: number }) => {
     const response = await inventoryApi.updateStock(id, quantity);
+
     return response;
   }
 );
@@ -82,12 +86,14 @@ const inventorySlice = createSlice({
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload;
+
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch products';
       })
       // Create product
+
       .addCase(createProduct.fulfilled, (state, action) => {
         state.products.push(action.payload);
       })
@@ -96,13 +102,14 @@ const inventorySlice = createSlice({
         const index = state.products.findIndex(product => product.id === action.payload.id);
         if (index !== -1) {
           state.products[index] = action.payload;
+
         }
       })
       // Delete product
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.products = state.products.filter(product => product.id !== Number(action.payload));
       })
-      // Update stock
+        // Update stock
       .addCase(updateProductStock.fulfilled, (state, action) => {
         const index = state.products.findIndex(product => product.id === action.payload.id);
         if (index !== -1) {

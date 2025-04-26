@@ -1,4 +1,4 @@
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, useTheme } from '@mui/material';
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { 
   Dashboard as DashboardIcon,

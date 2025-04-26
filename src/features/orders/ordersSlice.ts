@@ -60,6 +60,7 @@ export const updateOrder = createAsyncThunk(
   }
 );
 
+
 export const deleteOrder = createAsyncThunk(
   'orders/deleteOrder',
   async (id: string) => {
@@ -67,8 +68,6 @@ export const deleteOrder = createAsyncThunk(
     return id;
   }
 );
-
-export const { updateOrderStatus, updateTrackingNumber, updateOrderNotes } = ordersSlice.actions;
 
 const ordersSlice = createSlice({
   name: 'orders',
@@ -117,16 +116,17 @@ const ordersSlice = createSlice({
       })
       // Update order
       .addCase(updateOrder.fulfilled, (state, action) => {
-        const index = state.orders.findIndex(order => order.id === action.payload.id);
+        const index = state.orders.findIndex(order => order.id === Number(action.payload.id));
         if (index !== -1) {
           state.orders[index] = action.payload;
         }
       })
       // Delete order
       .addCase(deleteOrder.fulfilled, (state, action) => {
-        state.orders = state.orders.filter(order => order.id !== action.payload);
+        state.orders = state.orders.filter(order => order.id !== Number(action.payload));
       });
   }
 });
 
+export const { updateOrderStatus, updateTrackingNumber, updateOrderNotes } = ordersSlice.actions;
 export default ordersSlice.reducer;

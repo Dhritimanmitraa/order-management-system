@@ -2,10 +2,8 @@ import { Box, Typography, Grid, Card, CardContent, Button, IconButton, Table, Ta
 import { Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
-import { Product } from '../features/inventory/inventorySlice';
 
 const Inventory = () => {
-  const dispatch = useDispatch();
   const products = useSelector((state: RootState) => state.inventory.products);
 
   const lowStockProducts = products.filter(product => product.stockLevel <= product.reorderPoint);

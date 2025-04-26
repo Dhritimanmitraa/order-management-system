@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { customersApi, Customer as ApiCustomer } from '../../api/customers';
 
 export interface Customer extends ApiCustomer {}

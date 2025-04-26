@@ -5,7 +5,6 @@ import { Add as AddIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchOrders } from '../features/orders/ordersSlice';
 import OrderDetails from './OrderDetails';
-import { Order } from '../types/order';
 
 interface Order {
   id: number;
