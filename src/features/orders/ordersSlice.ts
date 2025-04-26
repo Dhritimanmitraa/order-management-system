@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { ordersApi } from '../../api/orders';
 
 export interface OrderItem {
   productId: number;
@@ -29,42 +30,50 @@ interface OrdersState {
 }
 
 const initialState: OrdersState = {
-  orders: [
-    {
-      id: 1,
-      orderNumber: 'ORD-001',
-      customerName: 'John Doe',
-      customerEmail: 'john.doe@example.com',
-      orderDate: '2024-01-04',
-      status: 'Pending',
-      items: [
-        {
-          productId: 1,
-          productName: 'Product 1',
-          quantity: 2,
-          price: 75.00,
-          subtotal: 150.00
-        }
-      ],
-      total: 150.00,
-      lastUpdated: '2024-01-04T10:00:00Z'
-    }
-  ],
+  orders: [],
   loading: false,
   error: null
 };
+
+// Async thunks
+export const fetchOrders = createAsyncThunk(
+  'orders/fetchOrders',
+  async () => {
+    const response = await ordersApi.getAllOrders();
+    return response;
+  }
+);
+
+export const createOrder = createAsyncThunk(
+  'orders/createOrder',
+  async (orderData: Omit<Order, 'id'>) => {
+    const response = await ordersApi.createOrder(orderData);
+    return response;
+  }
+);
+
+export const updateOrder = createAsyncThunk(
+  'orders/updateOrder',
+  async ({ id, orderData }: { id: string; orderData: Partial<Order> }) => {
+    const response = await ordersApi.updateOrder(id, orderData);
+    return response;
+  }
+);
+
+export const deleteOrder = createAsyncThunk(
+  'orders/deleteOrder',
+  async (id: string) => {
+    await ordersApi.deleteOrder(id);
+    return id;
+  }
+);
+
+export const { updateOrderStatus, updateTrackingNumber, updateOrderNotes } = ordersSlice.actions;
 
 const ordersSlice = createSlice({
   name: 'orders',
   initialState,
   reducers: {
-    addOrder: (state, action: PayloadAction<Omit<Order, 'id'>>) => {
-      const newOrder = {
-        ...action.payload,
-        id: state.orders.length + 1,
-      };
-      state.orders.push(newOrder);
-    },
     updateOrderStatus: (state, action: PayloadAction<{ orderId: number; status: Order['status'] }>) => {
       const order = state.orders.find(o => o.id === action.payload.orderId);
       if (order) {
@@ -85,9 +94,39 @@ const ordersSlice = createSlice({
         order.notes = action.payload.notes;
         order.lastUpdated = new Date().toISOString();
       }
-    }
+    },
+  },
+  extraReducers: (builder) => {
+    // Fetch orders
+    builder
+      .addCase(fetchOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload;
+      })
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch orders';
+      })
+      // Create order
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.orders.push(action.payload);
+      })
+      // Update order
+      .addCase(updateOrder.fulfilled, (state, action) => {
+        const index = state.orders.findIndex(order => order.id === action.payload.id);
+        if (index !== -1) {
+          state.orders[index] = action.payload;
+        }
+      })
+      // Delete order
+      .addCase(deleteOrder.fulfilled, (state, action) => {
+        state.orders = state.orders.filter(order => order.id !== action.payload);
+      });
   }
 });
 
-export const { addOrder, updateOrderStatus, updateTrackingNumber, updateOrderNotes } = ordersSlice.actions;
 export default ordersSlice.reducer;

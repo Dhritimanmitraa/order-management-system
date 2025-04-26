@@ -6,6 +6,11 @@ import Products from './pages/Products'
 import Inventory from './pages/Inventory'
 import Suppliers from './pages/Suppliers'
 import Reports from './pages/Reports'
+import Customers from './pages/Customers'
+import Analytics from './pages/Analytics'
+import Notifications from './pages/Notifications'
+import Payments from './pages/Payments'
+import Settings from './pages/Settings'
 import { ThemeProvider, createTheme } from '@mui/material'
 
 const theme = createTheme({
@@ -69,8 +74,13 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/products" element={<Products />} />
           <Route path="/inventory" element={<Inventory />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/suppliers" element={<Suppliers />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/payments" element={<Payments />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </Layout>
     </ThemeProvider>

@@ -1,9 +1,11 @@
-import { useState } from 'react';
-import { Box, Typography, Button, Chip } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchOrders } from '../features/orders/ordersSlice';
 import OrderDetails from './OrderDetails';
+import { Order } from '../types/order';
 
 interface Order {
   id: number;
@@ -24,8 +26,13 @@ interface Order {
 }
 
 const Orders = () => {
-  const orders = useSelector((state: any) => state.orders.orders);
+  const { orders, loading, error } = useSelector((state: any) => state.orders);
+  const dispatch = useDispatch();
   const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
   const getStatusColor = (status: string) => {
     const colors: { [key: string]: string } = {
@@ -46,25 +53,21 @@ const Orders = () => {
     setSelectedOrder(null);
   };
 
-  // Sample data for development
-  const sampleOrders = [
-    {
-      id: 1,
-      orderNumber: 'ORD-001',
-      customerName: 'John Doe',
-      orderDate: '2024-01-04',
-      status: 'Pending',
-      total: 150.00
-    },
-    {
-      id: 2,
-      orderNumber: 'ORD-002',
-      customerName: 'Jane Smith',
-      orderDate: '2024-01-04',
-      status: 'Completed',
-      total: 250.00
-    }
-  ];
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={3}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
 
   const columns: GridColDef[] = [
     { field: 'orderNumber', headerName: 'Order Number', width: 150 },

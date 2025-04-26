@@ -1,7 +1,8 @@
 
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { inventoryApi, Product as ApiProduct } from '../../api/inventory';
 
-export interface Product {
+export interface Product extends ApiProduct {
   id: number;
   name: string;
   sku: string;
@@ -21,67 +22,96 @@ interface InventoryState {
 }
 
 const initialState: InventoryState = {
-  products: [
-    {
-      id: 1,
-      name: 'Product 1',
-      sku: 'SKU001',
-      description: 'Sample product description',
-      price: 75.00,
-      stockLevel: 100,
-      reorderPoint: 20,
-      category: 'Electronics',
-      supplier: 'Supplier A',
-      lastRestocked: '2024-01-04T10:00:00Z'
-    }
-  ],
+  products: [],
   loading: false,
   error: null
 };
 
+// Async thunks
+export const fetchProducts = createAsyncThunk(
+  'inventory/fetchProducts',
+  async () => {
+    const response = await inventoryApi.getAllProducts();
+    return response;
+  }
+);
+
+export const createProduct = createAsyncThunk(
+  'inventory/createProduct',
+  async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const response = await inventoryApi.createProduct(productData);
+    return response;
+  }
+);
+
+export const updateProductThunk = createAsyncThunk(
+  'inventory/updateProduct',
+  async ({ id, productData }: { id: string; productData: Partial<Product> }) => {
+    const response = await inventoryApi.updateProduct(id, productData);
+    return response;
+  }
+);
+
+export const deleteProduct = createAsyncThunk(
+  'inventory/deleteProduct',
+  async (id: string) => {
+    await inventoryApi.deleteProduct(id);
+    return id;
+  }
+);
+
+export const updateProductStock = createAsyncThunk(
+  'inventory/updateStock',
+  async ({ id, quantity }: { id: string; quantity: number }) => {
+    const response = await inventoryApi.updateStock(id, quantity);
+    return response;
+  }
+);
+
 const inventorySlice = createSlice({
   name: 'inventory',
   initialState,
-  reducers: {
-    addProduct: (state, action: PayloadAction<Omit<Product, 'id'>>) => {
-      const newProduct = {
-        ...action.payload,
-        id: state.products.length + 1
-      };
-      state.products.push(newProduct);
-    },
-    updateStock: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
-      const product = state.products.find(p => p.id === action.payload.productId);
-      if (product) {
-        product.stockLevel += action.payload.quantity;
-        product.lastRestocked = new Date().toISOString();
-      }
-    },
-    updateProduct: (state, action: PayloadAction<Product>) => {
-      const index = state.products.findIndex(p => p.id === action.payload.id);
-      if (index !== -1) {
-        state.products[index] = action.payload;
-      }
-    },
-    removeProduct: (state, action: PayloadAction<number>) => {
-      state.products = state.products.filter(p => p.id !== action.payload);
-    },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
-    },
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    }
+  reducers: {},
+  extraReducers: (builder) => {
+    // Fetch products
+    builder
+      .addCase(fetchProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products = action.payload;
+      })
+      .addCase(fetchProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch products';
+      })
+      // Create product
+      .addCase(createProduct.fulfilled, (state, action) => {
+        state.products.push(action.payload);
+      })
+      // Update product
+      .addCase(updateProductThunk.fulfilled, (state, action) => {
+        const index = state.products.findIndex(product => product.id === action.payload.id);
+        if (index !== -1) {
+          state.products[index] = action.payload;
+        }
+      })
+      // Delete product
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.products = state.products.filter(product => product.id !== Number(action.payload));
+      })
+      // Update stock
+      .addCase(updateProductStock.fulfilled, (state, action) => {
+        const index = state.products.findIndex(product => product.id === action.payload.id);
+        if (index !== -1) {
+          state.products[index] = action.payload;
+        }
+      });
   }
 });
 
-export const {
-  addProduct,
-  updateStock,
-  updateProduct,
-  removeProduct,
-  setLoading,
-  setError
-} = inventorySlice.actions;
+export const {} = inventorySlice.actions;
 
 export default inventorySlice.reducer;

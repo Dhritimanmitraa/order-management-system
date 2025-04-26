@@ -1,6 +1,4 @@
 import { Box, Typography, Grid, Card, CardContent, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Rating } from '@mui/material';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
 
 interface Supplier {
   id: number;

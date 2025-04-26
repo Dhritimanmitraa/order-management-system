@@ -15,7 +15,11 @@ import {
 
 const drawerWidth = 240;
 
-const Sidebar = () => {
+interface SidebarProps {
+  open: boolean;
+}
+
+const Sidebar = ({ open }: SidebarProps) => {
   const theme = useTheme();
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
@@ -32,7 +36,9 @@ const Sidebar = () => {
 
   return (
     <Drawer
-      variant="permanent"
+      variant="persistent"
+      anchor="left"
+      open={open}
       sx={{
         width: drawerWidth,
         flexShrink: 0,
@@ -44,6 +50,12 @@ const Sidebar = () => {
           backdropFilter: 'blur(10px)',
           borderRight: '1px solid rgba(255, 255, 255, 0.3)',
           boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+          position: 'relative',
+          height: 'calc(100vh - 64px)',
+          transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
         },
       }}
     >
@@ -53,32 +65,21 @@ const Sidebar = () => {
             key={item.text}
             component={Link}
             to={item.path}
-            button
             sx={{
-              margin: '4px 8px',
-              borderRadius: 2,
-              color: theme.palette.primary.main,
               transition: 'all 0.3s ease',
-              '& .MuiListItemIcon-root': {
-                color: theme.palette.primary.main,
-                transition: 'all 0.3s ease',
-              },
               '&:hover': {
-                backgroundColor: 'rgba(44, 62, 80, 0.1)',
-                transform: 'translateX(4px)',
-                '& .MuiListItemIcon-root': {
-                  color: theme.palette.primary.dark,
-                  transform: 'scale(1.1)',
-                },
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                transform: 'translateX(10px)',
               },
             }}
           >
-            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+              {item.icon}
+            </ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
         ))}
       </List>
-      <Divider />
     </Drawer>
   );
 };

@@ -1,4 +1,5 @@
 import { Box, useTheme } from '@mui/material'
+import { useState } from 'react'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 
@@ -8,6 +9,11 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const theme = useTheme()
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  const handleMenuClick = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
 
   return (
     <Box
@@ -17,6 +23,7 @@ const Layout = ({ children }: LayoutProps) => {
         minHeight: '100vh',
         background: `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.background.paper} 100%)`,
         position: 'relative',
+        pt: '64px',
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -30,7 +37,7 @@ const Layout = ({ children }: LayoutProps) => {
         }
       }}
     >
-      <Navbar />
+      <Navbar onMenuClick={handleMenuClick} />
       <Box
         sx={{
           display: 'flex',
@@ -41,7 +48,7 @@ const Layout = ({ children }: LayoutProps) => {
           zIndex: 1
         }}
       >
-        <Sidebar />
+        <Sidebar open={sidebarOpen} />
         <Box
           component="main"
           sx={{
