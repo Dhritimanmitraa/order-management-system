@@ -29,7 +29,7 @@ import {
   deleteProduct,
 } from "../features/inventory/inventorySlice";
 
-  const [open, setOpen] = useState(false);
+function Products() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -38,9 +38,12 @@ import {
     price: '',
     stockLevel: '',
     quantity: '',
-    lastRestocked: '',
+    lastRestocked: '',    
+    category: 'Default',
+    supplier: 'Default',
+    reorderPoint: 10,
   });
-
+    const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { products, loading, error } = useSelector((state: RootState) => state.inventory);
   useEffect(() => {
@@ -56,6 +59,9 @@ import {
         price: selectedProduct.price.toString(),
         stockLevel: selectedProduct.stockLevel.toString(),
         quantity: selectedProduct.quantity.toString(),
+        category: selectedProduct.category,
+        supplier: selectedProduct.supplier,
+        reorderPoint: selectedProduct.reorderPoint,
         lastRestocked: selectedProduct.lastRestocked,
       });
     }
@@ -73,6 +79,9 @@ import {
         price: '',
         stockLevel: '',
         quantity: '',
+        category: 'Default',
+        supplier: 'Default',
+        reorderPoint: 10,
         lastRestocked: '',
       });
     }
@@ -93,19 +102,16 @@ import {
     const productData = {
       name: formData.name,
         description: formData.description,
-        sku: formData.sku.toString(),
+        sku: formData.sku,
         price: parseFloat(formData.price),
         quantity: parseInt(formData.quantity),
-        stockLevel: parseInt(formData.stockLevel),        
-      category: 'Default',
-      supplier: 'Default',
-      reorderPoint: 10,
+        stockLevel: parseInt(formData.stockLevel),
+        category: formData.category,
+      supplier: formData.supplier,
+      reorderPoint: formData.reorderPoint,
       lastRestocked:formData.lastRestocked,
-
-      
     };
-
-    if (selectedProduct) {
+      if (selectedProduct) {
         await dispatch(updateProduct({ id: selectedProduct.id.toString(), productData }));
     } else {
       await dispatch(addProduct(productData));
@@ -136,7 +142,7 @@ import {
         </Button>
       </Box>
 
-        <Grid container spacing={3}>
+      <Grid container spacing={3}>
         {products.map((product) => (
           <Grid item xs={12} sm={6} md={4} key={product.id}>
             <Card
@@ -176,7 +182,7 @@ import {
               <CardActions>
                 <IconButton
                   size="small"
-                  onClick={() => handleClickOpen()}
+                  onClick={handleClickOpen}
                   color="primary"
                 >
                   <EditIcon />
@@ -280,6 +286,6 @@ import {
       </Dialog>
     </Box>
   );
-};
+}
 
 export default Products;

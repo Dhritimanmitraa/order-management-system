@@ -6,8 +6,7 @@ import { Box, Button, Card, CardContent, Grid, TextField, Typography, FormContro
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import ordersSlice from '../features/orders/ordersSlice';
 import  {updateProduct, Product} from '../features/inventory/inventorySlice';
-import type { Product } from '../features/inventory/inventorySlice';
-
+import {getProducts} from '../features/inventory/inventorySlice'
 interface OrderItem {
   productId: number;
   productName: string;
@@ -18,7 +17,10 @@ interface OrderItem {
 
 const AddOrder = () => {
   const dispatch = useDispatch();
-  const products = useSelector((state: any) => state.inventory.products);
+  const {products, loading, error } = useSelector((state: any) => state.inventory);
+  useEffect(() => {
+    dispatch(getProducts());
+  }, [dispatch]);
 
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -73,10 +75,12 @@ const AddOrder = () => {
       total: calculateTotal(),
       lastUpdated: new Date().toISOString()
     };
-
-    dispatch(ordersSlice.actions.addOrder(newOrder));
+    dispatch(ordersSlice(newOrder));
 
     // Update inventory stock levels
+
+    
+
     items.forEach(item => {
       dispatch(updateProduct({
         id: item.productId.toString(),

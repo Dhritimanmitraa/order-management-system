@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
 import { Product } from '../features/inventory/inventorySlice';
 export default function Inventory() {
-    const products = useSelector((state: RootState) => state.inventory);
+    const products: Product[] = useSelector((state: RootState) => state.inventory);
 
   const lowStockProducts = products.filter(product => product.stockLevel <= product.reorderPoint);
 
@@ -38,7 +38,7 @@ export default function Inventory() {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>Total Stock Value</Typography>
-              <Typography variant="h4">
+              <Typography variant="h4" >
                 ${products.reduce((total, product) => total + (product.price * product.stockLevel), 0).toFixed(2)}
               </Typography>
             </CardContent>
@@ -85,7 +85,7 @@ export default function Inventory() {
                 <TableCell align="right">{product.reorderPoint}</TableCell>
                 <TableCell>{product.lastRestocked? new Date(product.lastRestocked).toLocaleDateString() : ""}</TableCell>
                   <TableCell align="right">
-                  <IconButton size="small" color="primary">
+                  <IconButton size="small" color="primary" >
                     <EditIcon />
                   </IconButton>
                   <IconButton size="small" color="error">
@@ -99,4 +99,4 @@ export default function Inventory() {
       </TableContainer>
     </Box>
   );
-};
+}
