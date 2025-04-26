@@ -29,6 +29,7 @@ import {
   deleteProduct,
 } from "../features/inventory/inventorySlice";
 
+function Products() {
   const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
@@ -39,12 +40,16 @@ import {
     stockLevel: '',
     quantity: '',
     lastRestocked: '',
+    category: '',
+    supplier: '',
+    reorderPoint: 0
   });
 
   const dispatch = useDispatch();
-  const { products, loading, error } = useSelector((state: RootState) => state.inventory);
+  const products = useSelector((state: RootState) => state.inventory);
+  const { loading, error } = useSelector((state: RootState) => state.inventory);
   useEffect(() => {
-    dispatch(getProducts()); 
+    dispatch(getProducts());
   }, [dispatch]);
 
   useEffect(() => {
@@ -57,6 +62,9 @@ import {
         stockLevel: selectedProduct.stockLevel.toString(),
         quantity: selectedProduct.quantity.toString(),
         lastRestocked: selectedProduct.lastRestocked,
+        category: selectedProduct.category,
+        supplier: selectedProduct.supplier,
+        reorderPoint: selectedProduct.reorderPoint
       });
     }
   }, [selectedProduct]);
@@ -74,6 +82,9 @@ import {
         stockLevel: '',
         quantity: '',
         lastRestocked: '',
+        category: '',
+        supplier: '',
+        reorderPoint: 0
       });
     }
     setOpen(true);
@@ -92,21 +103,19 @@ import {
   const handleSubmit = async () => {
     const productData = {
       name: formData.name,
-        description: formData.description,
-        sku: formData.sku.toString(),
-        price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity),
-        stockLevel: parseInt(formData.stockLevel),        
-      category: 'Default',
-      supplier: 'Default',
-      reorderPoint: 10,
-      lastRestocked:formData.lastRestocked,
-
-      
+      description: formData.description,
+      sku: formData.sku.toString(),
+      price: parseFloat(formData.price),
+      quantity: parseInt(formData.quantity),
+      stockLevel: parseInt(formData.stockLevel),
+      category: formData.category,
+      supplier: formData.supplier,
+      reorderPoint: formData.reorderPoint,
+      lastRestocked: formData.lastRestocked,
     };
 
     if (selectedProduct) {
-        await dispatch(updateProduct({ id: selectedProduct.id.toString(), productData }));
+      await dispatch(updateProduct({ id: selectedProduct.id.toString(), productData }));
     } else {
       await dispatch(addProduct(productData));
     }
@@ -116,7 +125,7 @@ import {
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-        await dispatch(deleteProduct(id.toString() as string));
+      await dispatch(deleteProduct(id.toString() as string));
     }
   };
 
@@ -136,8 +145,8 @@ import {
         </Button>
       </Box>
 
-        <Grid container spacing={3}>
-        {products.map((product) => (
+      <Grid container spacing={3}>
+        {products.map((product:Product) => (
           <Grid item xs={12} sm={6} md={4} key={product.id}>
             <Card
               sx={{
@@ -166,27 +175,27 @@ import {
                 <Typography variant="body2" color="text.secondary">
                   In Stock: {product.stockLevel}
                 </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary">
                   Quantity: {product.quantity}
                 </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary">
                   Last Restocked: {product.lastRestocked}
                 </Typography>
               </CardContent>
               <CardActions>
                 <IconButton
                   size="small"
-                  onClick={() => handleClickOpen()}
+                  onClick={() => handleClickOpen(product)}
                   color="primary"
                 >
                   <EditIcon />
                 </IconButton>
-                <IconButton 
-                size="small" color="error"
-                onClick={() => handleDelete(product.id)}
-              >
+                <IconButton
+                  size="small" color="error"
+                  onClick={() => handleDelete(product.id)}
+                >
                   <DeleteIcon />
-              </IconButton>
+                </IconButton>
               </CardActions>
             </Card>
           </Grid>
@@ -248,7 +257,7 @@ import {
             value={formData.stockLevel}
             onChange={handleInputChange}
           />
-            <TextField
+          <TextField
             margin="dense"
             name="quantity"
             label="quantity"
@@ -258,7 +267,7 @@ import {
             value={formData.quantity}
             onChange={handleInputChange}
           />
-            <TextField
+          <TextField
             margin="dense"
             name="lastRestocked"
             label="Last restocked"
