@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Orders from './pages/Orders'
@@ -11,6 +11,8 @@ import Analytics from './pages/Analytics'
 import Notifications from './pages/Notifications'
 import Payments from './pages/Payments'
 import Settings from './pages/Settings'
+import Login from './pages/Login'
+import ProtectedRoute from './components/ProtectedRoute'
 import { ThemeProvider, createTheme } from '@mui/material'
 
 const theme = createTheme({
@@ -68,21 +70,31 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/suppliers" element={<Suppliers />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/customers" element={<Customers />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/suppliers" element={<Suppliers />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/payments" element={<Payments />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </ThemeProvider>
   )
 }

@@ -81,7 +81,11 @@ export const deleteProduct = createAsyncThunk('products/deleteProduct', async (i
 
 const inventorySlice = createSlice({
     name: 'inventory',
-    initialState,
+    initialState: {
+        products: [],
+        loading: false,
+        error: null
+    },
     reducers: {},
     extraReducers: (builder) => {
         builder.addCase(getProducts.fulfilled, (state, action) => {

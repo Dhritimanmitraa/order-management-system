@@ -1,17 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import customersReducer from './features/customers/customersSlice';
-import ordersReducer from './features/orders/ordersSlice';
+import authReducer from './features/auth/authSlice';
 import inventoryReducer from './features/inventory/inventorySlice';
-import analyticsReducer from './features/analytics/analyticsSlice';
+import customersReducer from './features/customers/customersSlice';
 
 export const store = configureStore({
   reducer: {
-    customers: customersReducer,
-    orders: ordersReducer,
+    auth: authReducer,
     inventory: inventoryReducer,
-    analytics: analyticsReducer,
+    customers: customersReducer,
   },
 });
 
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

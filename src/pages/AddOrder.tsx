@@ -1,15 +1,11 @@
-import { useState } from 'react';
-
-
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Button, Card, CardContent, Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
+import { Box, Button, Card, CardContent, Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, IconButton, Alert } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
-import ordersSlice from '../features/orders/ordersSlice';
-import  {updateProduct, Product} from '../features/inventory/inventorySlice';
-import {getProducts} from '../features/inventory/inventorySlice'
 import { RootState } from '../store';
-import axios from 'axios';
-import { api } from './config';
+import { Product } from '../types';
+import { getProducts } from '../features/inventory/inventorySlice';
+import { createOrder } from '../features/orders/ordersSlice';
 
 interface OrderItem {
   productId: number;
@@ -19,30 +15,11 @@ interface OrderItem {
   subtotal: number;
 }
 
-const API_BASE_URL = 'http://localhost:5000/api';
-
-export const fetchProducts = async () => {
-  try {
-    const response = await api.get('/products');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
-  }
-};
-
-// Add request interceptor for authentication
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
 const AddOrder = () => {
   const dispatch = useDispatch();
   const { products, loading, error } = useSelector((state: RootState) => state.inventory);
+  const [formError, setFormError] = useState<string | null>(null);
+
   useEffect(() => {
     dispatch(getProducts());
   }, [dispatch]);
@@ -99,51 +76,74 @@ const AddOrder = () => {
     if (items.length === 0) {
       return 'At least one item is required';
     }
+    for (const item of items) {
+      if (item.quantity <= 0) {
+        return 'Quantity must be greater than 0';
+      }
+      if (item.productId === 0) {
+        return 'Please select a product for all items';
+      }
+    }
     return null;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const error = validateForm();
     if (error) {
-      // Show error message
+      setFormError(error);
       return;
     }
-    const newOrder = {
-      orderNumber: `ORD-${Date.now()}`,
-      customerName,
-      customerEmail,
-      orderDate: new Date().toISOString(),
-      status: 'Pending' as const,
-      items,
-      total: calculateTotal(),
-      lastUpdated: new Date().toISOString()
-    };
-    dispatch(ordersSlice(newOrder));
 
-    // Update inventory stock levels
+    try {
+      const newOrder = {
+        orderNumber: `ORD-${Date.now()}`,
+        customerName,
+        customerEmail,
+        orderDate: new Date().toISOString(),
+        status: 'Pending' as const,
+        items,
+        total: calculateTotal()
+      };
 
-    
-
-    items.forEach(item => {
-      dispatch(updateProduct({
-        id: item.productId.toString(),
-        productData: {quantity: -item.quantity} // Decrease stock
-      }));
-    })
-
-    // Reset form
-    setCustomerName('');
-    setCustomerEmail('');
-    setItems([]);
+      await dispatch(createOrder(newOrder));
+      
+      // Reset form
+      setCustomerName('');
+      setCustomerEmail('');
+      setItems([]);
+      setFormError(null);
+    } catch (error) {
+      setFormError('Failed to create order. Please try again.');
+    }
   };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={3}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>Add New Order</Typography>
+      {formError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {formError}
+        </Alert>
+      )}
       <Card>
         <CardContent>
           <Grid container spacing={3}>
-            {/* Customer Information */}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -151,6 +151,7 @@ const AddOrder = () => {
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 required
+                error={formError && !customerName.trim()}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -161,15 +162,15 @@ const AddOrder = () => {
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
                 required
+                error={formError && (!customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail))}
               />
             </Grid>
 
-            {/* Order Items */}
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>Order Items</Typography>
               {items.map((item, index) => (
                 <Box key={index} sx={{ mb: 2, display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                  <FormControl sx={{ minWidth: 200 }}>
+                  <FormControl sx={{ minWidth: 200 }} error={formError && item.productId === 0}>
                     <InputLabel>Product</InputLabel>
                     <Select
                       value={item.productId}
@@ -190,6 +191,7 @@ const AddOrder = () => {
                     onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value))}
                     InputProps={{ inputProps: { min: 1 } }}
                     sx={{ width: 100 }}
+                    error={formError && item.quantity <= 0}
                   />
                   <Typography sx={{ py: 2 }}>
                     Subtotal: ${item.subtotal.toFixed(2)}
@@ -204,14 +206,12 @@ const AddOrder = () => {
               </Button>
             </Grid>
 
-            {/* Order Total */}
             <Grid item xs={12}>
               <Typography variant="h6" align="right">
                 Total: ${calculateTotal().toFixed(2)}
               </Typography>
             </Grid>
 
-            {/* Submit Button */}
             <Grid item xs={12}>
               <Button
                 variant="contained"

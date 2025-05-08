@@ -1,11 +1,18 @@
 import { Box, Typography, Grid, Card, CardContent, Button, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Alert, CircularProgress } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Warning as WarningIcon } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
-import { RootState } from '../app/store';
-import { Product } from '../features/inventory/inventorySlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../store';
+import { Product } from '../types';
+import { deleteProduct } from '../features/inventory/inventorySlice';
+import { useEffect } from 'react';
 
 export default function Inventory() {
-    const { products, loading, error } = useSelector((state: RootState) => state.inventory);
+    const dispatch = useDispatch();
+    const { products = [], loading, error } = useSelector((state: RootState) => state.inventory);
+
+    useEffect(() => {
+        // Add any initialization logic here
+    }, [dispatch]);
 
     if (loading) {
         return (
@@ -23,7 +30,17 @@ export default function Inventory() {
         );
     }
 
-    const lowStockProducts = products.filter(product => product.stockLevel <= product.reorderPoint);
+    const lowStockProducts = products?.filter(product => product.stockLevel <= product.reorderPoint) || [];
+
+    const handleDelete = async (id: number) => {
+        if (window.confirm('Are you sure you want to delete this product?')) {
+            try {
+                await dispatch(deleteProduct(id.toString()));
+            } catch (error) {
+                console.error('Failed to delete product:', error);
+            }
+        }
+    };
 
     return (
         <Box sx={{ p: 3 }}>
@@ -39,7 +56,7 @@ export default function Inventory() {
                     <Card>
                         <CardContent>
                             <Typography variant="h6" gutterBottom>Total Products</Typography>
-                            <Typography variant="h4">{products.length}</Typography>
+                            <Typography variant="h4">{products?.length || 0}</Typography>
                         </CardContent>
                     </Card>
                 </Grid>
@@ -55,8 +72,8 @@ export default function Inventory() {
                     <Card>
                         <CardContent>
                             <Typography variant="h6" gutterBottom>Total Stock Value</Typography>
-                            <Typography variant="h4" >
-                                ${products.reduce((total, product) => total + (product.price * product.stockLevel), 0).toFixed(2)}
+                            <Typography variant="h4">
+                                ${(products?.reduce((total, product) => total + (product.price * product.stockLevel), 0) || 0).toFixed(2)}
                             </Typography>
                         </CardContent>
                     </Card>
@@ -87,7 +104,7 @@ export default function Inventory() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {products.map((product: Product) => (
+                        {products?.map((product: Product) => (
                             <TableRow
                                 key={product.id}
                                 sx={{
@@ -100,12 +117,16 @@ export default function Inventory() {
                                 <TableCell align="right">${product.price.toFixed(2)}</TableCell>
                                 <TableCell align="right">{product.stockLevel}</TableCell>
                                 <TableCell align="right">{product.reorderPoint}</TableCell>
-                                <TableCell>{product.lastRestocked? new Date(product.lastRestocked).toLocaleDateString() : ""}</TableCell>
+                                <TableCell>{product.lastRestocked ? new Date(product.lastRestocked).toLocaleDateString() : "N/A"}</TableCell>
                                 <TableCell align="right">
-                                    <IconButton size="small" color="primary" >
+                                    <IconButton size="small" color="primary">
                                         <EditIcon />
                                     </IconButton>
-                                    <IconButton size="small" color="error">
+                                    <IconButton 
+                                        size="small" 
+                                        color="error"
+                                        onClick={() => handleDelete(product.id)}
+                                    >
                                         <DeleteIcon />
                                     </IconButton>
                                 </TableCell>

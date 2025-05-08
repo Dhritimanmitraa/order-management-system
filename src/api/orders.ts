@@ -1,4 +1,4 @@
-import api from './config';
+import { api } from './config';
 import { Order } from '../features/orders/ordersSlice';
 
 export const ordersApi = {

@@ -1,132 +1,106 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { ordersApi } from '../../api/orders';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-export interface OrderItem {
-  productId: number;
-  productName: string;
-  quantity: number;
-  price: number;
-  subtotal: number;
-}
+const API_URL = 'http://localhost:5001/api/orders';
 
-export interface Order {
-  id: number;
-  orderNumber: string;
-  customerName: string;
-  customerEmail: string;
-  orderDate: string;
-  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
-  trackingNumber?: string;
-  items: OrderItem[];
-  total: number;
-  notes?: string;
-  lastUpdated: string;
-}
-
-interface OrdersState {
-  orders: Order[];
-  loading: boolean;
-  error: string | null;
-}
-
-const initialState: OrdersState = {
-  orders: [],
-  loading: false,
-  error: null
-};
-
-// Async thunks
-export const fetchOrders = createAsyncThunk(
-  'orders/fetchOrders',
+export const getOrders = createAsyncThunk(
+  'orders/getOrders',
   async () => {
-    const response = await ordersApi.getAllOrders();
-    return response;
+    const response = await axios.get(API_URL);
+    return response.data;
   }
 );
 
 export const createOrder = createAsyncThunk(
   'orders/createOrder',
-  async (orderData: Omit<Order, 'id'>) => {
-    const response = await ordersApi.createOrder(orderData);
-    return response;
+  async (orderData: any) => {
+    const response = await axios.post(API_URL, orderData);
+    return response.data;
   }
 );
 
 export const updateOrder = createAsyncThunk(
   'orders/updateOrder',
-  async ({ id, orderData }: { id: string; orderData: Partial<Order> }) => {
-    const response = await ordersApi.updateOrder(id, orderData);
-    return response;
+  async ({ id, orderData }: { id: string; orderData: any }) => {
+    const response = await axios.put(`${API_URL}/${id}`, orderData);
+    return response.data;
   }
 );
 
+export const updateOrderStatus = createAsyncThunk(
+  'orders/updateOrderStatus',
+  async ({ id, status }: { id: string; status: string }) => {
+    const response = await axios.patch(`${API_URL}/${id}/status`, { status });
+    return response.data;
+  }
+);
 
-export const deleteOrder = createAsyncThunk(
-  'orders/deleteOrder',
-  async (id: string) => {
-    await ordersApi.deleteOrder(id);
-    return id;
+export const updateTrackingNumber = createAsyncThunk(
+  'orders/updateTrackingNumber',
+  async ({ id, trackingNumber }: { id: string; trackingNumber: string }) => {
+    const response = await axios.patch(`${API_URL}/${id}/tracking`, { trackingNumber });
+    return response.data;
+  }
+);
+
+export const updateOrderNotes = createAsyncThunk(
+  'orders/updateOrderNotes',
+  async ({ id, notes }: { id: string; notes: string }) => {
+    const response = await axios.patch(`${API_URL}/${id}/notes`, { notes });
+    return response.data;
   }
 );
 
 const ordersSlice = createSlice({
   name: 'orders',
-  initialState,
-  reducers: {
-    updateOrderStatus: (state, action: PayloadAction<{ orderId: number; status: Order['status'] }>) => {
-      const order = state.orders.find(o => o.id === action.payload.orderId);
-      if (order) {
-        order.status = action.payload.status;
-        order.lastUpdated = new Date().toISOString();
-      }
-    },
-    updateTrackingNumber: (state, action: PayloadAction<{ orderId: number; trackingNumber: string }>) => {
-      const order = state.orders.find(o => o.id === action.payload.orderId);
-      if (order) {
-        order.trackingNumber = action.payload.trackingNumber;
-        order.lastUpdated = new Date().toISOString();
-      }
-    },
-    updateOrderNotes: (state, action: PayloadAction<{ orderId: number; notes: string }>) => {
-      const order = state.orders.find(o => o.id === action.payload.orderId);
-      if (order) {
-        order.notes = action.payload.notes;
-        order.lastUpdated = new Date().toISOString();
-      }
-    },
+  initialState: {
+    orders: [],
+    loading: false,
+    error: null
   },
+  reducers: {},
   extraReducers: (builder) => {
-    // Fetch orders
     builder
-      .addCase(fetchOrders.pending, (state) => {
+      .addCase(getOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchOrders.fulfilled, (state, action) => {
+      .addCase(getOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.orders = action.payload;
       })
-      .addCase(fetchOrders.rejected, (state, action) => {
+      .addCase(getOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch orders';
+        state.error = action.error.message;
       })
-      // Create order
       .addCase(createOrder.fulfilled, (state, action) => {
         state.orders.push(action.payload);
       })
-      // Update order
       .addCase(updateOrder.fulfilled, (state, action) => {
-        const index = state.orders.findIndex(order => order.id === Number(action.payload.id));
+        const index = state.orders.findIndex(order => order.id === action.payload.id);
         if (index !== -1) {
           state.orders[index] = action.payload;
         }
       })
-      // Delete order
-      .addCase(deleteOrder.fulfilled, (state, action) => {
-        state.orders = state.orders.filter(order => order.id !== Number(action.payload));
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        const index = state.orders.findIndex(order => order.id === action.payload.id);
+        if (index !== -1) {
+          state.orders[index] = action.payload;
+        }
+      })
+      .addCase(updateTrackingNumber.fulfilled, (state, action) => {
+        const index = state.orders.findIndex(order => order.id === action.payload.id);
+        if (index !== -1) {
+          state.orders[index] = action.payload;
+        }
+      })
+      .addCase(updateOrderNotes.fulfilled, (state, action) => {
+        const index = state.orders.findIndex(order => order.id === action.payload.id);
+        if (index !== -1) {
+          state.orders[index] = action.payload;
+        }
       });
   }
 });
 
-export const { updateOrderStatus, updateTrackingNumber, updateOrderNotes } = ordersSlice.actions;
 export default ordersSlice.reducer;

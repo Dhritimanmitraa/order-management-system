@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
 import { Box, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import ordersSlice from './ordersSlice';
-import { Add as AddIcon } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import OrderDetails from './OrderDetails';
-import { RootState } from '../../app/store';
-import { getOrders } from './ordersSlice';
+import { getOrders } from '../features/orders/ordersSlice';
+import { RootState } from '../store';
+import { Add as AddIcon } from '@mui/icons-material';
+
 interface Order {
   id: number;
   orderNumber: string;
@@ -105,7 +105,7 @@ const Orders = () => {
   };
 
   return (
-    <Box sx={{ py: 3 }}>
+    <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4">Orders</Typography>
         <Button
@@ -119,14 +119,11 @@ const Orders = () => {
       <DataGrid
         rows={orders}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-        }}
-        pageSizeOptions={[5, 10, 20]}
+        pageSize={10}
+        rowsPerPageOptions={[10]}
         onRowClick={handleRowClick}
         autoHeight
+        disableSelectionOnClick
       />
       {selectedOrder && (
         <OrderDetails
