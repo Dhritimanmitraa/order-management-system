@@ -40,11 +40,10 @@ function Products() {
     stockLevel: '',
     quantity: '',
     lastRestocked: '',
-    category: '',
-    supplier: '',
-    reorderPoint: 0
+    category: 'Default',
+    supplier: 'Default',
+    reorderPoint: 10
   });
-
   const dispatch = useDispatch();
   const products = useSelector((state: RootState) => state.inventory);
   const { loading, error } = useSelector((state: RootState) => state.inventory);
@@ -61,10 +60,10 @@ function Products() {
         price: selectedProduct.price.toString(),
         stockLevel: selectedProduct.stockLevel.toString(),
         quantity: selectedProduct.quantity.toString(),
-        lastRestocked: selectedProduct.lastRestocked,
         category: selectedProduct.category,
         supplier: selectedProduct.supplier,
-        reorderPoint: selectedProduct.reorderPoint
+        reorderPoint: selectedProduct.reorderPoint,
+        lastRestocked: selectedProduct.lastRestocked,
       });
     }
   }, [selectedProduct]);
@@ -81,10 +80,10 @@ function Products() {
         price: '',
         stockLevel: '',
         quantity: '',
+        category: 'Default',
+        supplier: 'Default',
+        reorderPoint: 10,
         lastRestocked: '',
-        category: '',
-        supplier: '',
-        reorderPoint: 0
       });
     }
     setOpen(true);
@@ -104,7 +103,7 @@ function Products() {
     const productData = {
       name: formData.name,
       description: formData.description,
-      sku: formData.sku.toString(),
+      sku: formData.sku,
       price: parseFloat(formData.price),
       quantity: parseInt(formData.quantity),
       stockLevel: parseInt(formData.stockLevel),
@@ -277,8 +276,6 @@ function Products() {
             value={formData.lastRestocked}
             onChange={handleInputChange}
           />
-
-
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
@@ -289,6 +286,6 @@ function Products() {
       </Dialog>
     </Box>
   );
-};
+}
 
 export default Products;

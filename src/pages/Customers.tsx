@@ -3,8 +3,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { Customer, CustomersState } from '../features/customers/customersSlice';
-
+import { Customer} from '../features/customers/customersSlice';
 
 const Customers = () => {
   const customersState = useSelector((state: RootState) => state.customers);

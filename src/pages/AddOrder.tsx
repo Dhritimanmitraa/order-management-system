@@ -6,7 +6,10 @@ import { Box, Button, Card, CardContent, Grid, TextField, Typography, FormContro
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import ordersSlice from '../features/orders/ordersSlice';
 import  {updateProduct, Product} from '../features/inventory/inventorySlice';
-import type { Product } from '../features/inventory/inventorySlice';
+import {getProducts} from '../features/inventory/inventorySlice'
+import { RootState } from '../store';
+import axios from 'axios';
+import { api } from './config';
 
 interface OrderItem {
   productId: number;
@@ -16,9 +19,33 @@ interface OrderItem {
   subtotal: number;
 }
 
+const API_BASE_URL = 'http://localhost:5000/api';
+
+export const fetchProducts = async () => {
+  try {
+    const response = await api.get('/products');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+};
+
+// Add request interceptor for authentication
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 const AddOrder = () => {
   const dispatch = useDispatch();
-  const products = useSelector((state: any) => state.inventory.products);
+  const { products, loading, error } = useSelector((state: RootState) => state.inventory);
+  useEffect(() => {
+    dispatch(getProducts());
+  }, [dispatch]);
 
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -62,7 +89,25 @@ const AddOrder = () => {
     return items.reduce((sum, item) => sum + item.subtotal, 0);
   };
 
+  const validateForm = () => {
+    if (!customerName.trim()) {
+      return 'Customer name is required';
+    }
+    if (!customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+      return 'Valid email is required';
+    }
+    if (items.length === 0) {
+      return 'At least one item is required';
+    }
+    return null;
+  };
+
   const handleSubmit = () => {
+    const error = validateForm();
+    if (error) {
+      // Show error message
+      return;
+    }
     const newOrder = {
       orderNumber: `ORD-${Date.now()}`,
       customerName,
@@ -73,10 +118,12 @@ const AddOrder = () => {
       total: calculateTotal(),
       lastUpdated: new Date().toISOString()
     };
-
-    dispatch(ordersSlice.actions.addOrder(newOrder));
+    dispatch(ordersSlice(newOrder));
 
     // Update inventory stock levels
+
+    
+
     items.forEach(item => {
       dispatch(updateProduct({
         id: item.productId.toString(),

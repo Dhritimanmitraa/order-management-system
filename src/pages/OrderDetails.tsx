@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, Card, CardContent, Typography, Grid, Button, TextField, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { updateOrderStatus, updateTrackingNumber, updateOrderNotes, Order } from '../features/orders/ordersSlice';
+import { RootState } from '../app/store';
 
 interface OrderDetailsProps {
   orderId: number;
@@ -11,7 +12,7 @@ interface OrderDetailsProps {
 
 const OrderDetails = ({ orderId, onClose, open }: OrderDetailsProps) => {
   const dispatch = useDispatch();
-  const order = useSelector((state: any) => 
+  const order = useSelector((state: RootState) => 
     state.orders.orders.find((o: Order) => o.id === orderId)
   );
 
@@ -19,7 +20,13 @@ const OrderDetails = ({ orderId, onClose, open }: OrderDetailsProps) => {
   const [notes, setNotes] = useState(order?.notes || '');
   const [status, setStatus] = useState(order?.status || 'Pending');
 
-  if (!order) return null;
+  if (!order) {
+    return (
+      <Box p={3}>
+        <Typography color="error">Order not found</Typography>
+      </Box>
+    );
+  }
 
   const handleStatusChange = (newStatus: Order['status']) => {
     dispatch(updateOrderStatus({ orderId, status: newStatus }));

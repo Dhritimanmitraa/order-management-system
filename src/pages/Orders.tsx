@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import { Add as AddIcon, FormatListBulleted } from '@mui/icons-material';
+import ordersSlice from './ordersSlice';
+import { Add as AddIcon } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
-import ordersSlice from '../features/orders/ordersSlice';
 import OrderDetails from './OrderDetails';
-
+import { RootState } from '../../app/store';
+import { getOrders } from './ordersSlice';
 interface Order {
   id: number;
   orderNumber: string;
@@ -25,12 +26,12 @@ interface Order {
 }
 
 const Orders = () => {
-  const { orders, loading, error } = useSelector((state: any) => state.orders);
+  const { orders, loading, error } = useSelector((state: RootState) => state.orders);
   const dispatch = useDispatch();
   const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
 
   useEffect(() => {
-    dispatch(ordersSlice.getOrders());
+    dispatch(getOrders());
   }, [dispatch]);
 
   const getStatusColor = (status: string) => {

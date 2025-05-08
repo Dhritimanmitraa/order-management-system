@@ -8,6 +8,10 @@ router.post('/register', async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
 
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
@@ -34,7 +38,11 @@ router.post('/register', async (req, res) => {
       token
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Registration error:', error);
+    res.status(500).json({ 
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
