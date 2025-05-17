@@ -1,72 +1,121 @@
 # Order Management System
 
-A modern, responsive order management system built with React, TypeScript, and Vite. This application helps businesses manage their orders, customers, products, and payments efficiently.
+A modern, feature-rich order management system built with React, Node.js, and MongoDB.
 
-## Features
+![Order Management System](https://img.shields.io/badge/Order-Management-blue)
+![React](https://img.shields.io/badge/React-18.2.0-blue)
+![Node.js](https://img.shields.io/badge/Node.js-16.x-green)
+![MongoDB](https://img.shields.io/badge/MongoDB-5.0-green)
 
-- **Dashboard**: Overview of key metrics and recent activities
-- **Order Management**: Create, view, and manage orders
-- **Customer Management**: Maintain customer information and order history
-- **Product Catalog**: Manage product inventory and details
-- **Payment Tracking**: Monitor payment status and transaction history
-- **Responsive Design**: Works seamlessly across desktop and mobile devices
+## 🌟 Features
 
-## Tech Stack
+- **Modern UI/UX**
+  - Material-UI based responsive design
+  - Intuitive dashboard and navigation
+  - Real-time updates and notifications
 
-- React
-- TypeScript
-- Vite
-- Material-UI
-- Redux Toolkit (for state management)
+- **Advanced Order Management**
+  - Comprehensive order tracking
+  - Status updates with history
+  - Bulk order processing
+  - Advanced filtering and sorting
 
-## Prerequisites
+- **Customer Management**
+  - Customer profiles and history
+  - Order history per customer
+  - Customer communication tools
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
+- **Inventory Integration**
+  - Real-time stock updates
+  - Low stock alerts
+  - Product management
 
-## Installation
+- **Reporting & Analytics**
+  - Sales analytics
+  - Order trends
+  - Export functionality (CSV/Excel)
+  - Invoice generation
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- MongoDB
+- npm or yarn
+
+### Installation
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd order-management-app
+   git clone https://github.com/Dhritimanmitraa/order-management-system.git
+   cd order-management-system
    ```
 
 2. Install dependencies:
    ```bash
+   # Install backend dependencies
+   cd backend
+   npm install
+
+   # Install frontend dependencies
+   cd ../frontend
    npm install
    ```
 
-3. Start the development server:
+3. Set up environment variables:
    ```bash
-   npm run dev
+   # Backend (.env)
+   MONGODB_URI=your_mongodb_uri
+   JWT_SECRET=your_jwt_secret
+   PORT=5000
+
+   # Frontend (.env)
+   REACT_APP_API_URL=http://localhost:5000
    ```
 
-4. Open your browser and navigate to `http://localhost:3000`
+4. Start the development servers:
+   ```bash
+   # Start backend server
+   cd backend
+   npm run dev
 
-## Build for Production
+   # Start frontend server
+   cd ../frontend
+   npm start
+   ```
 
-To create a production build:
+## 🛠️ Tech Stack
 
-```bash
- npm run build
-```
+- **Frontend**
+  - React
+  - Material-UI
+  - Redux Toolkit
+  - TypeScript
+  - Axios
 
-The built files will be in the `dist` directory.
+- **Backend**
+  - Node.js
+  - Express
+  - MongoDB
+  - Mongoose
+  - JWT Authentication
 
-## Project Structure
+## 📝 API Documentation
 
-```
-src/
-  ├── components/     # Reusable UI components
-  ├── features/       # Feature-specific components and logic
-  ├── pages/          # Page components
-  ├── App.tsx         # Root component
-  ├── main.tsx        # Entry point
-  └── store.ts        # Redux store configuration
-```
+The API documentation is available at `/api-docs` when running the server locally.
 
-## Contributing
+### Key Endpoints
+
+- `GET /api/orders` - Get all orders
+- `POST /api/orders` - Create new order
+- `GET /api/orders/:id` - Get order details
+- `PUT /api/orders/:id` - Update order
+- `DELETE /api/orders/:id` - Delete order
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -74,6 +123,16 @@ src/
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Authors
+
+- **Dhritiman Mitra** - *Initial work* - [Dhritimanmitraa](https://github.com/Dhritimanmitraa)
+
+## 🙏 Acknowledgments
+
+- Material-UI for the amazing component library
+- MongoDB for the robust database solution
+- All contributors who have helped shape this project
