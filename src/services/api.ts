@@ -1,10 +1,5 @@
-// Using mock configuration for development
-/* Using mock configuration for development */
-export { default } from './mockConfig';
-
 import axios from 'axios';
 
-// Use Vite's import.meta.env instead of process.env
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
@@ -52,5 +47,4 @@ api.interceptors.response.use(
   }
 );
 
-// Export as a named export instead of default
-export { api };
+export default api; 

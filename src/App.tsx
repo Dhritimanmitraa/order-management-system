@@ -14,6 +14,10 @@ import Settings from './pages/Settings'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 import { ThemeProvider, createTheme } from '@mui/material'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { Provider } from 'react-redux'
+import { store } from './app/store'
 
 const theme = createTheme({
   palette: {
@@ -66,36 +70,39 @@ const theme = createTheme({
   },
 })
 
-
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/orders" element={<Orders />} />
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/inventory" element={<Inventory />} />
-                  <Route path="/customers" element={<Customers />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/suppliers" element={<Suppliers />} />
-                  <Route path="/reports" element={<Reports />} />
-                  <Route path="/notifications" element={<Notifications />} />
-                  <Route path="/payments" element={<Payments />} />
-                  <Route path="/settings" element={<Settings />} />
-                </Routes>
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </ThemeProvider>
+    <Provider store={store}>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <ThemeProvider theme={theme}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/orders" element={<Orders />} />
+                      <Route path="/products" element={<Products />} />
+                      <Route path="/inventory" element={<Inventory />} />
+                      <Route path="/customers" element={<Customers />} />
+                      <Route path="/analytics" element={<Analytics />} />
+                      <Route path="/suppliers" element={<Suppliers />} />
+                      <Route path="/reports" element={<Reports />} />
+                      <Route path="/notifications" element={<Notifications />} />
+                      <Route path="/payments" element={<Payments />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </ThemeProvider>
+      </LocalizationProvider>
+    </Provider>
   )
 }
 

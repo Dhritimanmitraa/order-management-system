@@ -28,6 +28,7 @@ import {
   updateProduct,
   deleteProduct,
 } from "../features/inventory/inventorySlice";
+import api from '../services/api';
 
 function Products() {
   const [open, setOpen] = useState(false);
@@ -125,6 +126,40 @@ function Products() {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       await dispatch(deleteProduct(id.toString() as string));
+    }
+  };
+
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      localStorage.setItem('token', response.data.token);
+      // Handle successful login
+    } catch (error) {
+      // Handle error
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const response = await api.get('/orders', {
+        params: {
+          page: 1,
+          limit: 10,
+          status: 'pending'
+        }
+      });
+      // Handle orders data
+    } catch (error) {
+      // Handle error
+    }
+  };
+
+  const createOrder = async (orderData: any) => {
+    try {
+      const response = await api.post('/orders', orderData);
+      // Handle successful order creation
+    } catch (error) {
+      // Handle error
     }
   };
 

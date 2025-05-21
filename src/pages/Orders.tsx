@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import {
   Box,
   Typography,
@@ -47,8 +41,8 @@ const Orders = () => {
   const [actionsAnchorEl, setActionsAnchorEl] = useState<null | HTMLElement>(null);
   const [filters, setFilters] = useState({
     status: '',
-    startDate: null,
-    endDate: null,
+    startDate: null as Date | null,
+    endDate: null as Date | null,
     search: '',
   });
 

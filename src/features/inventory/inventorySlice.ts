@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api from '../../services/api';
 
 export interface Product {
     id: string;
@@ -6,112 +7,93 @@ export interface Product {
     description: string;
     sku: string;
     price: number;
+    stockLevel: number;
     quantity: number;
     category: string;
     supplier: string;
     reorderPoint: number;
-    stockLevel: number;
     lastRestocked: string;
 }
 
-const initialState: Product[] = [
-    { id: "0", name: "Initial Product", description: "Initial product description", sku: "000", price: 0, quantity: 0, category: "initial", supplier: "initial", reorderPoint: 0, stockLevel: 0, lastRestocked: "" }
-];
+interface InventoryState {
+    products: Product[];
+    loading: boolean;
+    error: string | null;
+}
 
-export const getProducts = createAsyncThunk('products/getProducts', async () => {
-    try {
-        const response = await fetch('http://localhost:5000/products');
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching products:', error);
-        throw error;
-    }
-});
+const initialState: InventoryState = {
+    products: [],
+    loading: false,
+    error: null,
+};
 
-export const addProduct = createAsyncThunk('products/addProduct', async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    try {
-        const response = await fetch('http://localhost:5000/products', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(productData),
-        });
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error adding product:', error);
-        throw error;
+export const getProducts = createAsyncThunk(
+    'inventory/getProducts',
+    async () => {
+        const response = await api.get('/products');
+        return response.data;
     }
-});
+);
 
-export const updateProduct = createAsyncThunk('products/updateProduct', async ({ id, productData }: { id: string; productData: Partial<Product> }) => {
-    try {
-        const response = await fetch(`http://localhost:5000/products/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(productData),
-        });
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error updating product:', error);
-        throw error;
+export const addProduct = createAsyncThunk(
+    'inventory/addProduct',
+    async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
+        const response = await api.post('/products', productData);
+        return response.data;
     }
-});
+);
 
-export const deleteProduct = createAsyncThunk('products/deleteProduct', async (id: string) => {
-    try {
-        const response = await fetch(`http://localhost:5000/products/${id}`, {
-            method: 'DELETE',
-        });
-        if (response.ok) {
-            return id;
-        } else {
-            throw new Error('Failed to delete product');
-        }
-    } catch (error) {
-        console.error('Error deleting product:', error);
-        throw error;
+export const updateProduct = createAsyncThunk(
+    'inventory/updateProduct',
+    async ({ id, productData }: { id: string; productData: Partial<Product> }) => {
+        const response = await api.put(`/products/${id}`, productData);
+        return response.data;
     }
-});
+);
+
+export const deleteProduct = createAsyncThunk(
+    'inventory/deleteProduct',
+    async (id: string) => {
+        await api.delete(`/products/${id}`);
+        return id;
+    }
+);
 
 const inventorySlice = createSlice({
     name: 'inventory',
-    initialState: {
-        products: [],
-        loading: false,
-        error: null
-    },
+    initialState,
     reducers: {},
     extraReducers: (builder) => {
-        builder.addCase(getProducts.fulfilled, (state, action) => {
-            return action.payload;
-        });
-        builder.addCase(addProduct.fulfilled, (state, action) => {
-            const { name, description, sku, price, quantity, category, supplier, reorderPoint } = action.payload;
-            let newProduct = { id: crypto.randomUUID(), name: name, description: description, sku: sku, price: price, quantity: quantity, category: category, supplier: supplier, reorderPoint: reorderPoint, stockLevel: 0, lastRestocked: "" };
-            state.push(newProduct as Product);
-            return state;
-        });
-        builder.addCase(updateProduct.fulfilled, (state, action) => {
-            let updatedProduct;
-            const { id, name, description, sku, price, quantity, category, supplier, reorderPoint } = action.payload;
-            state.map((product, i) => {
-                if (product.id === id) {
-                    updatedProduct = { name: name, description: description, sku: sku, price: price, quantity: quantity, category: category, supplier: supplier, reorderPoint: reorderPoint, stockLevel: 0, lastRestocked:"" };
-                    state[i] = updatedProduct as Product;
+        builder
+            // Get Products
+            .addCase(getProducts.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getProducts.fulfilled, (state, action) => {
+                state.loading = false;
+                state.products = action.payload;
+            })
+            .addCase(getProducts.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to fetch products';
+            })
+            // Add Product
+            .addCase(addProduct.fulfilled, (state, action) => {
+                state.products.push(action.payload);
+            })
+            // Update Product
+            .addCase(updateProduct.fulfilled, (state, action) => {
+                const index = state.products.findIndex(p => p.id === action.payload.id);
+                if (index !== -1) {
+                    state.products[index] = action.payload;
                 }
             })
-            return state;
-        });
-        builder.addCase(deleteProduct.fulfilled, (state, action) => {           
-            return state.filter((product) => product.id !== action.payload);
-        });
-    }
+            // Delete Product
+            .addCase(deleteProduct.fulfilled, (state, action) => {
+                state.products = state.products.filter(p => p.id !== action.payload);
+            });
+    },
 });
 
 export default inventorySlice.reducer;
